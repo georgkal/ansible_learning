@@ -1,0 +1,23 @@
+---
+#Play
+- name: Get facts from NXOS sandbox
+  hosts: nxos
+  gather_facts: False
+  tasks:
+    - name: Get config only
+      cisco.nxos.nxos_facts:
+        gather_subset: config
+      register:
+        config_nxos
+    - name: Save config
+      local_action:
+        module: copy
+        content: "{{ config_nxos | to_nice_json }}"
+        dest: "~/{{inventory_hostname}}.json"
+    - name: Get only hardware facts
+      cisco.nxos.nxos_facts:
+        gather_subset: hardware
+      register:
+        hw_nxos
+    - name: Display HW facts
+      debug: var=hw_nxos["ansible_facts"]["ansible_net_hostname"]
